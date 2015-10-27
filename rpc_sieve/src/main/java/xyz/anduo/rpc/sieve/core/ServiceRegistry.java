@@ -1,10 +1,8 @@
 package xyz.anduo.rpc.sieve.core;
 
-import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
@@ -47,7 +45,7 @@ public class ServiceRegistry {
                 }
             });
             latch.await();
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             LOGGER.error("", e);
         }
         return zk;
@@ -58,7 +56,7 @@ public class ServiceRegistry {
             byte[] bytes = data.getBytes();
             String path = zk.create(Constant.ZK_DATA_PATH, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
             LOGGER.debug("create zookeeper node ({} => {})", path, data);
-        } catch (KeeperException | InterruptedException e) {
+        } catch (Exception e) {
             LOGGER.error("", e);
         }
     }

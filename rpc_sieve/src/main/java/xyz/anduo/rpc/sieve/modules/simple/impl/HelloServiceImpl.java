@@ -7,7 +7,6 @@ import xyz.anduo.rpc.sieve.modules.simple.HelloService;
 @RpcService(HelloService.class)
 public class HelloServiceImpl implements HelloService {
 
-	@Override
 	public String hello(String name) {
 		return "Hello! " + name;
 	}

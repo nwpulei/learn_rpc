@@ -2,12 +2,10 @@ package xyz.anduo.rpc.client;
 
 import io.netty.util.internal.ThreadLocalRandom;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
@@ -53,7 +51,6 @@ public class ServiceDiscovery {
 		ZooKeeper zk = null;
 		try {
 			zk = new ZooKeeper(registryAddress, Constant.ZK_SESSION_TIMEOUT, new Watcher() {
-				@Override
 				public void process(WatchedEvent event) {
 					if (event.getState() == Event.KeeperState.SyncConnected) {
 						latch.countDown();
@@ -61,7 +58,7 @@ public class ServiceDiscovery {
 				}
 			});
 			latch.await();
-		} catch (IOException | InterruptedException e) {
+		} catch (Exception e) {
 			LOGGER.error("", e);
 		}
 		return zk;
@@ -70,21 +67,20 @@ public class ServiceDiscovery {
 	private void watchNode(final ZooKeeper zk) {
 		try {
 			List<String> nodeList = zk.getChildren(Constant.ZK_REGISTRY_PATH, new Watcher() {
-				@Override
 				public void process(WatchedEvent event) {
 					if (event.getType() == Event.EventType.NodeChildrenChanged) {
 						watchNode(zk);
 					}
 				}
 			});
-			List<String> dataList = new ArrayList<>();
+			List<String> dataList = new ArrayList<String>();
 			for (String node : nodeList) {
 				byte[] bytes = zk.getData(Constant.ZK_REGISTRY_PATH + "/" + node, false, null);
 				dataList.add(new String(bytes));
 			}
 			LOGGER.debug("node data: {}", dataList);
 			this.dataList = dataList;
-		} catch (KeeperException | InterruptedException e) {
+		} catch (Exception e) {
 			LOGGER.error("", e);
 		}
 	}
